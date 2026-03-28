@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ahrefs Rank Drop Prioritizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f6f5f0;
+      --surface: #ffffff;
+      --surface2: #f0efe9;
+      --border: #e2e0d8;
+      --border2: #ccc9be;
+      --text: #1a1916;
+      --text2: #6b6860;
+      --text3: #9c9a93;
+      --accent: #1a1916;
+      --critical-bg: #fff0f0; --critical-text: #b91c1c; --critical-border: #fca5a5;
+      --high-bg: #fff7ed; --high-text: #c2410c; --high-border: #fdba74;
+      --medium-bg: #eff6ff; --medium-text: #1d4ed8; --medium-border: #93c5fd;
+      --low-bg: #f0fdf4; --low-text: #15803d; --low-border: #86efac;
+      --stable-bg: #f9f9f7; --stable-text: #6b6860; --stable-border: #d1d0c8;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111110;
+        --surface: #1c1c1a;
+        --surface2: #242421;
+        --border: #2e2e2b;
+        --border2: #3d3d39;
+        --text: #f0efe9;
+        --text2: #9c9a93;
+        --text3: #6b6860;
+        --accent: #f0efe9;
+        --critical-bg: #2d1515; --critical-text: #fca5a5; --critical-border: #7f1d1d;
+        --high-bg: #2d1f0d; --high-text: #fdba74; --high-border: #7c2d12;
+        --medium-bg: #0f1d35; --medium-text: #93c5fd; --medium-border: #1e3a5f;
+        --low-bg: #0f2318; --low-text: #86efac; --low-border: #14532d;
+        --stable-bg: #1c1c1a; --stable-text: #9c9a93; --stable-border: #2e2e2b;
+      }
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+    }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--text);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 14px; height: 14px; fill: var(--bg); }
+    .header-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      color: var(--text2);
+    }
+
+    /* ── Main layout ── */
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* ── Upload area ── */
+    #upload-section { animation: fadeUp .4s ease both; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+    .upload-hero {
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+    .upload-hero h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      margin-bottom: .5rem;
+    }
+    .upload-hero p {
+      color: var(--text2);
+      font-size: 15px;
+      max-width: 480px;
+      margin: 0 auto 2rem;
+    }
+
+    .drop-zone {
+      border: 1.5px dashed var(--border2);
+      border-radius: 16px;
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      background: var(--surface);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--text2);
+      background: var(--surface2);
+    }
+    .drop-zone input[type=file] { display: none; }
+    .drop-icon {
+      width: 48px; height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+      background: var(--surface2);
+    }
+    .drop-icon svg { width: 20px; height: 20px; stroke: var(--text2); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .drop-zone h2 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+    .drop-zone p { font-size: 13px; color: var(--text2); margin-bottom: 1.25rem; }
+    .btn-upload {
+      display: inline-block;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: opacity .12s;
+    }
+    .btn-upload:hover { opacity: .85; }
+
+    .cols-hint {
+      max-width: 560px;
+      margin: 1.25rem auto 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .col-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      color: var(--text2);
+    }
+
+    .sample-btn {
+      display: block;
+      max-width: 560px;
+      margin: 1rem auto 0;
+      text-align: center;
+    }
+    .btn-ghost {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-size: 13px;
+      color: var(--text2);
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: border-color .12s, color .12s;
+    }
+    .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+    /* ── Priority legend ── */
+    .legend {
+      max-width: 560px;
+      margin: 2rem auto 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .legend h3 { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; }
+    .legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Dashboard ── */
+    #dashboard { display: none; animation: fadeUp .3s ease both; }
+
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .dash-title { font-size: 13px; color: var(--text2); }
+    .dash-title strong { color: var(--text); font-weight: 500; }
+    .btn-reset {
+      font-size: 12px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 12px;
+      color: var(--text2);
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all .12s;
+    }
+    .btn-reset:hover { border-color: var(--border2); color: var(--text); }
+
+    /* Metric cards */
+    .metrics { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .metric-card {
+      flex: 1; min-width: 100px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+    .metric-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .05em; }
+    .metric-value { font-size: 24px; font-weight: 500; letter-spacing: -0.02em; color: var(--text); }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .filter-label { font-size: 11px; color: var(--text3); margin-right: 2px; }
+    .filter-btn {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all .1s;
+      font-family: var(--font-body);
+      white-space: nowrap;
+    }
+    .filter-btn:hover { border-color: var(--border2); color: var(--text); }
+    .filter-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .search-wrap { display: flex; align-items: center; gap: 8px; }
+    .search-wrap label { font-size: 12px; color: var(--text2); }
+    .search-input {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-family: var(--font-body);
+      width: 200px;
+      outline: none;
+      transition: border-color .12s;
+    }
+    .search-input:focus { border-color: var(--border2); }
+    .search-input::placeholder { color: var(--text3); }
+
+    /* Table */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .table-scroll { overflow-x: auto; max-height: 520px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { position: sticky; top: 0; z-index: 2; background: var(--surface2); }
+    th {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text2);
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    th:hover { color: var(--text); }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      color: var(--text);
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--surface2); }
+
+    .pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .pill-Critical  { background: var(--critical-bg);  color: var(--critical-text);  border-color: var(--critical-border); }
+    .pill-High      { background: var(--high-bg);      color: var(--high-text);      border-color: var(--high-border); }
+    .pill-Medium    { background: var(--medium-bg);    color: var(--medium-text);    border-color: var(--medium-border); }
+    .pill-Low       { background: var(--low-bg);       color: var(--low-text);       border-color: var(--low-border); }
+    .pill-Stable    { background: var(--stable-bg);    color: var(--stable-text);    border-color: var(--stable-border); }
+
+    .sort-icon { opacity: .35; font-size: 10px; margin-left: 3px; }
+    .sort-icon.on { opacity: 1; }
+    .drop-neg { color: var(--critical-text); font-weight: 500; }
+    .drop-pos { color: var(--low-text); }
+    .drop-zero { color: var(--text3); }
+    .mono { font-family: var(--font-mono); font-size: 12px; }
+    .url-cell { font-size: 12px; color: var(--text2); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .row-count { font-size: 12px; color: var(--text3); margin-top: 8px; }
+    .empty-row td { text-align: center; padding: 2.5rem; color: var(--text3); }
+
+    /* Export */
+    .export-bar { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .btn-export {
+      font-size: 12px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 14px;
+      color: var(--text2);
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all .12s;
+    }
+    .btn-export:hover { border-color: var(--border2); color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 14 14"><path d="M2 11L7 3L12 11H2Z"/></svg>
+    </div>
+    Rank Drop Prioritizer
+  </div>
+  <span class="header-badge">Ahrefs CSV → Priority</span>
+</header>
+
+<main>
+
+  <!-- Upload Section -->
+  <div id="upload-section">
+    <div class="upload-hero">
+      <h1>Spot ranking drops before<br>they hurt your traffic</h1>
+      <p>Upload your Ahrefs keywords export and instantly classify every drop by priority level.</p>
+    </div>
+
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()">
+      <input type="file" id="csv-file" accept=".csv,.tsv">
+      <div class="drop-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <h2>Drop your Ahrefs CSV here</h2>
+      <p>or click to browse your files</p>
+      <button class="btn-upload" onclick="event.stopPropagation(); document.getElementById('csv-file').click()">Choose file</button>
+    </div>
+
+    <div class="cols-hint">
+      <span class="col-tag">Keyword</span>
+      <span class="col-tag">Current position</span>
+      <span class="col-tag">Previous position</span>
+      <span class="col-tag">Search volume</span>
+      <span class="col-tag">URL</span>
+    </div>
+
+    <div class="sample-btn">
+      <button class="btn-ghost" onclick="loadSample()">Load sample data instead</button>
+    </div>
+
+    <div class="legend">
+      <h3>Priority thresholds</h3>
+      <div class="legend-grid">
+        <div class="legend-item"><span class="legend-dot" style="background:var(--critical-text)"></span><span><strong>Critical</strong> — dropped 30+</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--high-text)"></span><span><strong>High</strong> — dropped 15–29</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--medium-text)"></span><span><strong>Medium</strong> — dropped 5–14</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--low-text)"></span><span><strong>Low</strong> — dropped 1–4</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--stable-text)"></span><span><strong>Stable</strong> — no drop / improved</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <div class="dash-header">
+      <div class="dash-title">Analysing <strong id="file-label"></strong></div>
+      <button class="btn-reset" onclick="resetTool()">↑ Upload new file</button>
+    </div>
+
+    <div class="metrics" id="metric-cards"></div>
+
+    <div class="filters">
+      <span class="filter-label">Filter:</span>
+      <button class="filter-btn active" data-filter="all" onclick="setFilter(this)">All</button>
+      <button class="filter-btn" data-filter="Critical" onclick="setFilter(this)">🔴 Critical</button>
+      <button class="filter-btn" data-filter="High" onclick="setFilter(this)">🟠 High</button>
+      <button class="filter-btn" data-filter="Medium" onclick="setFilter(this)">🔵 Medium</button>
+      <button class="filter-btn" data-filter="Low" onclick="setFilter(this)">🟢 Low</button>
+      <button class="filter-btn" data-filter="Stable" onclick="setFilter(this)">⚪ Stable</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <label for="search-input">Search:</label>
+        <input type="text" id="search-input" class="search-input" placeholder="keyword or URL…" oninput="renderTable()">
+      </div>
+      <div class="row-count" id="row-count"></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead id="tbl-head"></thead>
+          <tbody id="tbl-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="export-bar">
+      <button class="btn-export" onclick="exportCSV()">Export filtered CSV ↓</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const SAMPLE = `Keyword,Current position,Previous position,Search volume,URL
+seo tools,45,12,22000,https://example.com/seo-tools
+best crm software,3,2,18000,https://example.com/crm
+rank tracker free,87,54,9500,https://example.com/rank-tracker
+ahrefs vs semrush,6,4,7200,https://example.com/comparison
+keyword research,28,11,41000,https://example.com/keyword-research
+backlink checker,12,10,14000,https://example.com/backlinks
+site audit tool,2,3,8800,https://example.com/audit
+content marketing,55,23,33000,https://example.com/content
+google analytics,18,16,27000,https://example.com/ga
+email marketing,9,8,19000,https://example.com/email
+link building,34,19,11000,https://example.com/link-building
+organic traffic,1,1,5400,https://example.com/organic
+technical seo,67,31,7800,https://example.com/technical
+landing page,11,9,25000,https://example.com/landing
+conversion rate,4,4,16000,https://example.com/cro
+on page seo,3,45,12000,https://example.com/on-page`;
+
+const ALIASES = {
+  keyword: ['keyword','query','search query','key','term','keys'],
+  current: ['current position','current pos','position','rank','current rank','pos'],
+  previous: ['previous position','prev position','previous pos','prev pos','old position','old rank','prior position'],
+  volume: ['search volume','volume','monthly searches','avg monthly searches','searches','vol'],
+  url: ['url','page','landing page','address','link']
+};
+
+let allRows = [], activeFilter = 'all', sortCol = null, sortDir = 1, filteredRows = [];
+
+function detectCol(headers, key) {
+  const aliases = ALIASES[key];
+  for (const h of headers) {
+    const lh = h.toLowerCase().trim();
+    if (aliases.some(a => lh === a || lh.includes(a))) return h;
+  }
+  return null;
+}
+
+function getPriority(cur, prev) {
+  if (!prev || prev === 0 || !cur || cur === 0) return 'Stable';
+  const drop = prev - cur;
+  if (drop <= 0) return 'Stable';
+  if (drop >= 30) return 'Critical';
+  if (drop >= 15) return 'High';
+  if (drop >= 5) return 'Medium';
+  return 'Low';
+}
+
+function priorityOrder(p) {
+  return { Critical: 0, High: 1, Medium: 2, Low: 3, Stable: 4 }[p] ?? 5;
+}
+
+function parseLine(line, delim) {
+  const res = []; let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === delim && !inQ) { res.push(cur.trim()); cur = ''; }
+    else cur += c;
+  }
+  res.push(cur.trim());
+  return res;
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return null;
+  const delim = lines[0].includes('\t') ? '\t' : ',';
+  const headers = parseLine(lines[0], delim);
+  const kw = detectCol(headers, 'keyword');
+  const cur = detectCol(headers, 'current');
+  const prev = detectCol(headers, 'previous');
+  const vol = detectCol(headers, 'volume');
+  const url = detectCol(headers, 'url');
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const cols = parseLine(lines[i], delim);
+    const obj = {};
+    headers.forEach((h, j) => obj[h] = cols[j] || '');
+    const curVal = cur ? (parseInt(obj[cur]) || 0) : 0;
+    const prevVal = prev ? (parseInt(obj[prev]) || 0) : 0;
+    const volVal = vol ? (parseInt((obj[vol] || '').replace(/,/g, '')) || 0) : 0;
+    const drop = (prevVal && curVal) ? prevVal - curVal : 0;
+    rows.push({
+      keyword: kw ? obj[kw] : '',
+      current: curVal,
+      previous: prevVal,
+      volume: volVal,
+      url: url ? obj[url] : '',
+      drop,
+      priority: getPriority(curVal, prevVal)
+    });
+  }
+  return rows;
+}
+
+function renderMetrics(rows) {
+  const counts = { Critical: 0, High: 0, Medium: 0, Low: 0, Stable: 0 };
+  rows.forEach(r => counts[r.priority] = (counts[r.priority] || 0) + 1);
+  const drops = rows.filter(r => r.drop > 0);
+  const avgDrop = drops.length ? Math.round(drops.reduce((a, r) => a + r.drop, 0) / drops.length) : 0;
+  document.getElementById('metric-cards').innerHTML = `
+    <div class="metric-card"><div class="metric-label">Total keywords</div><div class="metric-value">${rows.length}</div></div>
+    <div class="metric-card"><div class="metric-label">Critical</div><div class="metric-value" style="color:var(--critical-text)">${counts.Critical}</div></div>
+    <div class="metric-card"><div class="metric-label">High priority</div><div class="metric-value" style="color:var(--high-text)">${counts.High}</div></div>
+    <div class="metric-card"><div class="metric-label">Medium</div><div class="metric-value" style="color:var(--medium-text)">${counts.Medium}</div></div>
+    <div class="metric-card"><div class="metric-label">Avg drop</div><div class="metric-value">${avgDrop}</div></div>
+    <div class="metric-card"><div class="metric-label">Stable / improved</div><div class="metric-value" style="color:var(--low-text)">${counts.Stable + counts.Low}</div></div>
+  `;
+}
+
+function renderTable() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  let rows = allRows.filter(r =>
+    (activeFilter === 'all' || r.priority === activeFilter) &&
+    (!q || r.keyword.toLowerCase().includes(q) || r.url.toLowerCase().includes(q))
+  );
+  if (sortCol !== null) {
+    rows = [...rows].sort((a, b) => {
+      let av = a[sortCol], bv = b[sortCol];
+      if (sortCol === 'priority') { av = priorityOrder(av); bv = priorityOrder(bv); }
+      if (typeof av === 'string') { av = av.toLowerCase(); bv = (bv || '').toLowerCase(); }
+      return av < bv ? -sortDir : av > bv ? sortDir : 0;
+    });
+  } else {
+    rows = [...rows].sort((a, b) => priorityOrder(a.priority) - priorityOrder(b.priority));
+  }
+  filteredRows = rows;
+
+  const cols = [
+    { key: 'priority', label: 'Priority' },
+    { key: 'keyword', label: 'Keyword' },
+    { key: 'current', label: 'Current pos' },
+    { key: 'previous', label: 'Prev pos' },
+    { key: 'drop', label: 'Drop' },
+    { key: 'volume', label: 'Search vol' },
+    { key: 'url', label: 'URL' },
+  ];
+
+  document.getElementById('tbl-head').innerHTML = `<tr>${cols.map(c =>
+    `<th onclick="sortBy('${c.key}')">${c.label}<span class="sort-icon${sortCol === c.key ? ' on' : ''}">${sortCol === c.key ? (sortDir === 1 ? ' ▲' : ' ▼') : ' ↕'}</span></th>`
+  ).join('')}</tr>`;
+
+  const tbody = document.getElementById('tbl-body');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No keywords match your filters</td></tr>`;
+    document.getElementById('row-count').textContent = '';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const dropTxt = (r.previous && r.current)
+      ? (r.drop > 0 ? `+${r.drop}` : r.drop < 0 ? `${r.drop}` : '—') : '—';
+    const dropClass = r.drop > 0 ? 'drop-neg' : r.drop < 0 ? 'drop-pos' : 'drop-zero';
+    const shortUrl = r.url
+      ? r.url.replace(/^https?:\/\/(www\.)?/, '').substring(0, 45) + (r.url.length > 52 ? '…' : '')
+      : '—';
+    return `<tr>
+      <td><span class="pill pill-${r.priority}">${r.priority}</span></td>
+      <td>${r.keyword || '—'}</td>
+      <td class="mono" style="text-align:center">${r.current || '—'}</td>
+      <td class="mono" style="text-align:center;color:var(--text2)">${r.previous || '—'}</td>
+      <td class="mono ${dropClass}" style="text-align:center">${dropTxt}</td>
+      <td class="mono" style="text-align:right">${r.volume ? r.volume.toLocaleString() : '—'}</td>
+      <td class="url-cell" title="${r.url}">${shortUrl}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('row-count').textContent =
+    `Showing ${rows.length} of ${allRows.length} keywords`;
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  renderTable();
+}
+
+function setFilter(btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.filter;
+  renderTable();
+}
+
+function processRows(rows, label) {
+  if (!rows || !rows.length) { alert('Could not parse CSV. Please check the file format.'); return; }
+  allRows = rows;
+  activeFilter = 'all'; sortCol = null; sortDir = 1;
+  document.getElementById('upload-section').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('file-label').textContent = label;
+  document.getElementById('search-input').value = '';
+  document.querySelectorAll('.filter-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+  renderMetrics(rows);
+  renderTable();
+}
+
+function resetTool() {
+  document.getElementById('upload-section').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('csv-file').value = '';
+  allRows = []; filteredRows = [];
+}
+
+function loadSample() {
+  const rows = parseCSV(SAMPLE);
+  processRows(rows, 'sample-data.csv (16 keywords)');
+}
+
+function exportCSV() {
+  if (!filteredRows.length) return;
+  const headers = ['Priority', 'Keyword', 'Current position', 'Previous position', 'Drop', 'Search volume', 'URL'];
+  const lines = [headers.join(',')];
+  filteredRows.forEach(r => {
+    lines.push([r.priority, `"${r.keyword}"`, r.current, r.previous, r.drop, r.volume, `"${r.url}"`].join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `rank-drops-${activeFilter}.csv`;
+  a.click();
+}
+
+// File input
+document.getElementById('csv-file').addEventListener('change', function () {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const rows = parseCSV(e.target.result);
+    processRows(rows, `${file.name} (${rows ? rows.length : 0} keywords)`);
+  };
+  reader.readAsText(file);
+});
+
+// Drag & drop
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const rows = parseCSV(ev.target.result);
+    processRows(rows, `${file.name} (${rows ? rows.length : 0} keywords)`);
+  };
+  reader.readAsText(file);
+});
+</script>
+
+</body>
+</html>
