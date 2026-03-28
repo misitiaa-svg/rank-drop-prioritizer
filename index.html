@@ -264,7 +264,8 @@ const ALIASES = {
   previous: ['previous position','prev position','previous pos','prev pos'],
   change:   ['position change','pos change','change','rank change'],
   volume:   ['search volume','volume','monthly searches','vol'],
-  url:      ['current url','url','page','landing page','link']
+  url:      ['current url'],
+  prevurl:  ['previous url']
 };
 
 function detectCol(headers, key) {
@@ -312,8 +313,9 @@ function parseCSV(text) {
   const curCol  = detectCol(rawHeaders,'current');
   const prevCol = detectCol(rawHeaders,'previous');
   const chgCol  = detectCol(rawHeaders,'change');
-  const volCol  = detectCol(rawHeaders,'volume');
-  const urlCol  = detectCol(rawHeaders,'url');
+  const volCol    = detectCol(rawHeaders,'volume');
+  const urlCol    = detectCol(rawHeaders,'url');
+  const prevUrlCol= detectCol(rawHeaders,'prevurl');
 
   const rows=[];
   for (let i=1;i<lines.length;i++) {
@@ -327,7 +329,9 @@ function parseCSV(text) {
     const prevRaw = prevCol? obj[prevCol]: '';
     const chgRaw  = chgCol ? obj[chgCol] : '';
     const volRaw  = volCol ? obj[volCol] : '';
-    const url     = urlCol ? obj[urlCol] : '';
+    const curUrl  = urlCol     ? obj[urlCol]     : '';
+    const prevUrl = prevUrlCol ? obj[prevUrlCol] : '';
+    const url     = curUrl || prevUrl;
 
     const curVal  = parseInt(curRaw) ||0;
     const prevVal = parseInt(prevRaw)||0;
