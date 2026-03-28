@@ -19,7 +19,7 @@
       --low-bg: #f0fdf4; --low-text: #15803d; --low-border: #86efac;
       --stable-bg: #f9f9f7; --stable-text: #6b6860; --stable-border: #d1d0c8;
       --new-bg: #faf5ff; --new-text: #7e22ce; --new-border: #d8b4fe;
-      --lost-bg: #fff1f2; --lost-text: #9f1239; --lost-border: #fda4af;
+      --lost-bg: #fff0f0; --lost-text: #7f1d1d; --lost-border: #fca5a5;
       --font-body: 'DM Sans', system-ui, sans-serif;
       --font-mono: 'DM Mono', monospace;
     }
@@ -34,7 +34,7 @@
         --low-bg: #0f2318; --low-text: #86efac; --low-border: #14532d;
         --stable-bg: #1c1c1a; --stable-text: #9c9a93; --stable-border: #2e2e2b;
         --new-bg: #1e0a36; --new-text: #d8b4fe; --new-border: #581c87;
-        --lost-bg: #2d0a10; --lost-text: #fda4af; --lost-border: #881337;
+        --lost-bg: #2d1515; --lost-text: #fca5a5; --lost-border: #7f1d1d;
       }
     }
     body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.6; }
@@ -65,9 +65,10 @@
     .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
     .legend { max-width: 560px; margin: 2rem auto 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; }
     .legend h3 { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; }
-    .legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+    .legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .legend-score { font-family: var(--font-mono); font-size: 11px; color: var(--text3); margin-left: auto; padding-left: 8px; }
     #dashboard { display: none; animation: fadeUp .3s ease both; }
     .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 8px; }
     .dash-title { font-size: 13px; color: var(--text2); }
@@ -90,7 +91,7 @@
     .search-input:focus { border-color: var(--border2); }
     .search-input::placeholder { color: var(--text3); }
     .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-    .table-scroll { overflow-x: auto; max-height: 540px; overflow-y: auto; }
+    .table-scroll { overflow-x: auto; max-height: 560px; overflow-y: auto; }
     table { width: 100%; border-collapse: collapse; }
     thead { position: sticky; top: 0; z-index: 2; background: var(--surface2); }
     th { font-size: 11px; font-weight: 500; color: var(--text2); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; letter-spacing: .03em; text-transform: uppercase; }
@@ -99,25 +100,31 @@
     tr:last-child td { border-bottom: none; }
     tbody tr:hover td { background: var(--surface2); }
     .pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; white-space: nowrap; border: 1px solid transparent; }
+    .pill-Lost     { background: var(--lost-bg);     color: var(--lost-text);     border-color: var(--lost-border); }
     .pill-Critical { background: var(--critical-bg); color: var(--critical-text); border-color: var(--critical-border); }
     .pill-High     { background: var(--high-bg);     color: var(--high-text);     border-color: var(--high-border); }
     .pill-Medium   { background: var(--medium-bg);   color: var(--medium-text);   border-color: var(--medium-border); }
     .pill-Low      { background: var(--low-bg);      color: var(--low-text);      border-color: var(--low-border); }
     .pill-Stable   { background: var(--stable-bg);   color: var(--stable-text);   border-color: var(--stable-border); }
     .pill-New      { background: var(--new-bg);      color: var(--new-text);      border-color: var(--new-border); }
-    .pill-Lost     { background: var(--lost-bg);     color: var(--lost-text);     border-color: var(--lost-border); }
     .sort-icon { opacity: .35; font-size: 10px; margin-left: 3px; }
     .sort-icon.on { opacity: 1; }
     .drop-neg { color: var(--critical-text); font-weight: 500; }
     .drop-pos { color: var(--low-text); font-weight: 500; }
     .drop-zero { color: var(--text3); }
     .mono { font-family: var(--font-mono); font-size: 12px; }
-    .url-cell { font-size: 12px; color: var(--text2); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .url-cell { font-size: 12px; color: var(--text2); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .row-count { font-size: 12px; color: var(--text3); margin-top: 8px; }
     .empty-row td { text-align: center; padding: 2.5rem; color: var(--text3); }
     .export-bar { display: flex; justify-content: flex-end; margin-top: 10px; }
     .btn-export { font-size: 12px; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 14px; color: var(--text2); cursor: pointer; font-family: var(--font-body); transition: all .12s; }
     .btn-export:hover { border-color: var(--border2); color: var(--text); }
+
+    /* Severity score bar */
+    .score-wrap { display: flex; align-items: center; gap: 6px; }
+    .score-num { font-family: var(--font-mono); font-size: 12px; font-weight: 500; min-width: 28px; text-align: right; }
+    .score-bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 2px; min-width: 40px; }
+    .score-bar-fill { height: 4px; border-radius: 2px; background: var(--critical-text); transition: width .3s ease; }
   </style>
 </head>
 <body>
@@ -136,7 +143,7 @@
   <div id="upload-section">
     <div class="upload-hero">
       <h1>Spot ranking drops before<br>they hurt your traffic</h1>
-      <p>Upload your Ahrefs keywords export and instantly classify every drop by priority level.</p>
+      <p>Upload your Ahrefs keywords export and get every drop scored and ranked by real urgency — drop severity × search volume.</p>
     </div>
 
     <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()">
@@ -163,15 +170,18 @@
     </div>
 
     <div class="legend">
-      <h3>Priority thresholds</h3>
+      <h3>Priority thresholds &amp; drop weights</h3>
       <div class="legend-grid">
-        <div class="legend-item"><span class="legend-dot" style="background:var(--critical-text)"></span><span><strong>Critical</strong> — dropped 30+ positions</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--high-text)"></span><span><strong>High</strong> — dropped 15–29 positions</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--medium-text)"></span><span><strong>Medium</strong> — dropped 5–14 positions</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--low-text)"></span><span><strong>Low</strong> — dropped 1–4 positions</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--stable-text)"></span><span><strong>Stable</strong> — no change or improved</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--lost-text)"></span><span><strong>Lost</strong> — no longer ranking</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--new-text)"></span><span><strong>New</strong> — newly ranking keyword</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--lost-text)"></span><span><strong>Lost</strong> — no longer ranking</span><span class="legend-score">weight ×5</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--critical-text)"></span><span><strong>Critical</strong> — dropped 30+</span><span class="legend-score">weight ×4</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--high-text)"></span><span><strong>High</strong> — dropped 15–29</span><span class="legend-score">weight ×3</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--medium-text)"></span><span><strong>Medium</strong> — dropped 5–14</span><span class="legend-score">weight ×2</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--low-text)"></span><span><strong>Low</strong> — dropped 1–4</span><span class="legend-score">weight ×1</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--stable-text)"></span><span><strong>Stable</strong> — no change / improved</span><span class="legend-score">weight ×0</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--new-text)"></span><span><strong>New</strong> — newly ranking</span><span class="legend-score">—</span></div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">
+        Severity score = drop weight × log₁₀(volume + 1). Sorted highest first.
       </div>
     </div>
   </div>
@@ -187,12 +197,12 @@
     <div class="filters">
       <span class="filter-label">Filter:</span>
       <button class="filter-btn active" data-filter="all" onclick="setFilter(this)">All</button>
+      <button class="filter-btn" data-filter="Lost" onclick="setFilter(this)">🔴 Lost</button>
       <button class="filter-btn" data-filter="Critical" onclick="setFilter(this)">🔴 Critical</button>
       <button class="filter-btn" data-filter="High" onclick="setFilter(this)">🟠 High</button>
       <button class="filter-btn" data-filter="Medium" onclick="setFilter(this)">🔵 Medium</button>
       <button class="filter-btn" data-filter="Low" onclick="setFilter(this)">🟢 Low</button>
       <button class="filter-btn" data-filter="Stable" onclick="setFilter(this)">⚪ Stable</button>
-      <button class="filter-btn" data-filter="Lost" onclick="setFilter(this)">🔻 Lost</button>
       <button class="filter-btn" data-filter="New" onclick="setFilter(this)">✨ New</button>
     </div>
 
@@ -220,28 +230,29 @@
 </main>
 
 <script>
-const SAMPLE = "Keyword\tCountry\tVolume\tPrevious position\tCurrent position\tPosition change\tCurrent URL\nsupplements to reduce cortisol\tUS\t1200\t1\t\tLost\thttps://example.com/cortisol\nsuddenly hungry all the time female\tUS\t800\t4\t1\t3\thttps://example.com/hungry\nhigh testosterone in women\tUS\t600\t5\t1\t4\thttps://example.com/testosterone\nlow estrogen symptoms\tUS\t2200\t4\t\tLost\thttps://example.com/estrogen\nprobiotics for women\tUS\t1800\t4\t\tLost\thttps://example.com/probiotics\ncortisol belly\tUS\t9000\t\t2\tNew\thttps://example.com/cortisol-belly\nbest collagen supplements\tUS\t1000\t5\t5\t0\thttps://example.com/collagen\ncreatine for women\tUS\t1000\t\t7\tNew\thttps://example.com/creatine\nhow to increase female libido\tUS\t400\t5\t3\t2\thttps://example.com/libido\nkeyword research tools\tUS\t15000\t2\t45\t-43\thttps://example.com/kw-research\ncontent marketing strategy\tUS\t8000\t3\t38\t-35\thttps://example.com/content\nseo audit checklist\tUS\t5000\t8\t22\t-14\thttps://example.com/audit\nbacklink building guide\tUS\t3200\t12\t19\t-7\thttps://example.com/backlinks\ntechnical seo tips\tUS\t2100\t6\t9\t-3\thttps://example.com/technical";
+const SAMPLE = "Keyword\tVolume\tPrevious position\tCurrent position\tPosition change\tCurrent URL\nsupplements to reduce cortisol\t1200\t1\t\tLost\thttps://example.com/cortisol\nsuddenly hungry all the time female\t800\t4\t1\t3\thttps://example.com/hungry\nhigh testosterone in women\t600\t5\t1\t4\thttps://example.com/testosterone\nlow estrogen symptoms\t2200\t4\t\tLost\thttps://example.com/estrogen\nprobiotics for women\t1800\t4\t\tLost\thttps://example.com/probiotics\ncortisol belly\t9000\t\t2\tNew\thttps://example.com/cortisol-belly\nbest collagen supplements\t1000\t5\t5\t0\thttps://example.com/collagen\ncreatine for women\t1000\t\t7\tNew\thttps://example.com/creatine\nhow to increase female libido\t400\t5\t3\t2\thttps://example.com/libido\nkeyword research tools\t15000\t2\t45\t-43\thttps://example.com/kw-research\ncontent marketing strategy\t8000\t3\t38\t-35\thttps://example.com/content\nseo audit checklist\t5000\t8\t22\t-14\thttps://example.com/audit\nbacklink building guide\t3200\t12\t19\t-7\thttps://example.com/backlinks\ntechnical seo tips\t2100\t6\t9\t-3\thttps://example.com/technical\nbest crm software\t22000\t1\t\tLost\thttps://example.com/crm\nsite audit tool\t12000\t3\t47\t-44\thttps://example.com/audit-tool";
 
-let allRows = [], activeFilter = 'all', sortCol = null, sortDir = 1, filteredRows = [];
+let allRows = [], activeFilter = 'all', sortCol = null, sortDir = 1, filteredRows = [], maxScore = 1;
 
+/* ── Encoding ── */
 function decodeBuffer(buffer) {
-  const bytes = new Uint8Array(buffer);
-  if (bytes[0] === 0xFF && bytes[1] === 0xFE) return new TextDecoder('utf-16le').decode(buffer);
-  if (bytes[0] === 0xFE && bytes[1] === 0xFF) return new TextDecoder('utf-16be').decode(buffer);
+  const b = new Uint8Array(buffer);
+  if (b[0]===0xFF && b[1]===0xFE) return new TextDecoder('utf-16le').decode(buffer);
+  if (b[0]===0xFE && b[1]===0xFF) return new TextDecoder('utf-16be').decode(buffer);
   return new TextDecoder('utf-8').decode(buffer);
 }
 
 function cleanStr(v) {
-  return (v || '').replace(/^\uFEFF/, '').replace(/\u0000/g, '').trim().replace(/^"(.*)"$/, '$1');
+  return (v||'').replace(/^\uFEFF/,'').replace(/\u0000/g,'').trim().replace(/^"(.*)"$/,'$1');
 }
 
 function parseLine(line, delim) {
-  const res = []; let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') { inQ = !inQ; }
-    else if (c === delim && !inQ) { res.push(cur); cur = ''; }
-    else cur += c;
+  const res=[]; let cur='', inQ=false;
+  for (let i=0;i<line.length;i++) {
+    const c=line[i];
+    if (c==='"'){inQ=!inQ;}
+    else if (c===delim&&!inQ){res.push(cur);cur='';}
+    else cur+=c;
   }
   res.push(cur);
   return res;
@@ -257,156 +268,186 @@ const ALIASES = {
 };
 
 function detectCol(headers, key) {
-  for (const h of headers) {
-    const lh = h.toLowerCase();
-    if (ALIASES[key].some(a => lh === a)) return h;
-  }
-  for (const h of headers) {
-    const lh = h.toLowerCase();
-    if (ALIASES[key].some(a => lh.includes(a))) return h;
-  }
+  for (const h of headers) { const lh=h.toLowerCase(); if (ALIASES[key].some(a=>lh===a)) return h; }
+  for (const h of headers) { const lh=h.toLowerCase(); if (ALIASES[key].some(a=>lh.includes(a))) return h; }
   return null;
 }
 
+/* ── Scoring ── */
+const DROP_WEIGHT = { Lost:5, Critical:4, High:3, Medium:2, Low:1, Stable:0, New:0 };
+
 function getPriority(changeVal, changeStr) {
-  const cs = (changeStr || '').toLowerCase().trim();
-  if (cs === 'lost') return 'Lost';
-  if (cs === 'new')  return 'New';
-  // Ahrefs "Position change" convention: positive = improved (went UP), negative = dropped
+  const cs=(changeStr||'').toLowerCase().trim();
+  if (cs==='lost') return 'Lost';
+  if (cs==='new')  return 'New';
+  // Ahrefs convention: positive changeVal = improved (went up), negative = dropped
   const drop = -changeVal;
-  if (isNaN(drop) || drop === 0) return 'Stable';
-  if (drop < 0) return 'Stable';
-  if (drop >= 30) return 'Critical';
-  if (drop >= 15) return 'High';
-  if (drop >= 5)  return 'Medium';
+  if (isNaN(drop)||drop===0) return 'Stable';
+  if (drop<0)  return 'Stable';
+  if (drop>=30) return 'Critical';
+  if (drop>=15) return 'High';
+  if (drop>=5)  return 'Medium';
   return 'Low';
 }
 
+function calcScore(priority, volume) {
+  const w = DROP_WEIGHT[priority] || 0;
+  if (w===0) return 0;
+  const volFactor = Math.log10((volume||0) + 1);
+  return Math.round(w * volFactor * 10) / 10;
+}
+
+function priorityOrder(p) {
+  return {Lost:0,Critical:1,High:2,Medium:3,Low:4,Stable:5,New:6}[p]??7;
+}
+
+/* ── Parse CSV ── */
 function parseCSV(text) {
-  const lines = text.split(/\r?\n/).filter(l => l.trim());
-  if (lines.length < 2) return null;
+  const lines = text.split(/\r?\n/).filter(l=>l.trim());
+  if (lines.length<2) return null;
   const delim = lines[0].includes('\t') ? '\t' : ',';
-  const rawHeaders = parseLine(lines[0], delim).map(cleanStr);
+  const rawHeaders = parseLine(lines[0],delim).map(cleanStr);
 
-  const kwCol   = detectCol(rawHeaders, 'keyword');
-  const curCol  = detectCol(rawHeaders, 'current');
-  const prevCol = detectCol(rawHeaders, 'previous');
-  const chgCol  = detectCol(rawHeaders, 'change');
-  const volCol  = detectCol(rawHeaders, 'volume');
-  const urlCol  = detectCol(rawHeaders, 'url');
+  const kwCol   = detectCol(rawHeaders,'keyword');
+  const curCol  = detectCol(rawHeaders,'current');
+  const prevCol = detectCol(rawHeaders,'previous');
+  const chgCol  = detectCol(rawHeaders,'change');
+  const volCol  = detectCol(rawHeaders,'volume');
+  const urlCol  = detectCol(rawHeaders,'url');
 
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
+  const rows=[];
+  for (let i=1;i<lines.length;i++) {
     if (!lines[i].trim()) continue;
-    const cols = parseLine(lines[i], delim).map(cleanStr);
-    const obj = {};
-    rawHeaders.forEach((h, j) => obj[h] = cols[j] || '');
+    const cols = parseLine(lines[i],delim).map(cleanStr);
+    const obj={};
+    rawHeaders.forEach((h,j)=>obj[h]=cols[j]||'');
 
-    const keyword = kwCol   ? obj[kwCol]   : '';
-    const curRaw  = curCol  ? obj[curCol]  : '';
-    const prevRaw = prevCol ? obj[prevCol] : '';
-    const chgRaw  = chgCol  ? obj[chgCol]  : '';
-    const volRaw  = volCol  ? obj[volCol]  : '';
-    const url     = urlCol  ? obj[urlCol]  : '';
+    const keyword = kwCol  ? obj[kwCol]  : '';
+    const curRaw  = curCol ? obj[curCol] : '';
+    const prevRaw = prevCol? obj[prevCol]: '';
+    const chgRaw  = chgCol ? obj[chgCol] : '';
+    const volRaw  = volCol ? obj[volCol] : '';
+    const url     = urlCol ? obj[urlCol] : '';
 
-    const curVal  = parseInt(curRaw)  || 0;
-    const prevVal = parseInt(prevRaw) || 0;
-    const volVal  = parseInt(volRaw.replace(/[^0-9]/g, '')) || 0;
+    const curVal  = parseInt(curRaw) ||0;
+    const prevVal = parseInt(prevRaw)||0;
+    const volVal  = parseInt(volRaw.replace(/[^0-9]/g,''))||0;
 
     const chgLower = chgRaw.toLowerCase().trim();
-    let changeVal = 0, changeStr = '';
-
-    if (chgLower === 'lost' || chgLower === 'new') {
-      changeStr = chgRaw.trim();
-    } else if (chgRaw.trim() !== '') {
-      changeVal = parseInt(chgRaw) || 0;
-    } else if (prevVal && curVal) {
-      // fallback: derive from positions. Ahrefs: positive change = moved up
-      changeVal = prevVal - curVal;
+    let changeVal=0, changeStr='';
+    if (chgLower==='lost'||chgLower==='new') {
+      changeStr=chgRaw.trim();
+    } else if (chgRaw.trim()!=='') {
+      changeVal=parseInt(chgRaw)||0;
+    } else if (prevVal&&curVal) {
+      changeVal=prevVal-curVal;
     }
 
-    const priority = getPriority(changeVal, changeStr);
-    // displayDrop: positive = fell down the rankings
-    const displayDrop = (changeStr === '') ? -changeVal : null;
+    const priority   = getPriority(changeVal, changeStr);
+    const score      = calcScore(priority, volVal);
+    const displayDrop= changeStr==='' ? -changeVal : null;
 
-    rows.push({ keyword, current: curVal, previous: prevVal, volume: volVal, url, drop: displayDrop, changeStr, priority });
+    rows.push({keyword,current:curVal,previous:prevVal,volume:volVal,url,drop:displayDrop,changeStr,priority,score});
   }
   return rows;
 }
 
-function priorityOrder(p) {
-  return { Critical:0, High:1, Medium:2, Low:3, Stable:4, Lost:5, New:6 }[p] ?? 7;
-}
-
+/* ── Render metrics ── */
 function renderMetrics(rows) {
-  const c = { Critical:0, High:0, Medium:0, Low:0, Stable:0, Lost:0, New:0 };
-  rows.forEach(r => c[r.priority] = (c[r.priority]||0)+1);
-  const drops = rows.filter(r => r.drop !== null && r.drop > 0);
-  const avg = drops.length ? Math.round(drops.reduce((a,r)=>a+r.drop,0)/drops.length) : 0;
-  document.getElementById('metric-cards').innerHTML = `
+  const c={Lost:0,Critical:0,High:0,Medium:0,Low:0,Stable:0,New:0};
+  rows.forEach(r=>c[r.priority]=(c[r.priority]||0)+1);
+  const urgentVol = rows
+    .filter(r=>r.priority==='Lost'||r.priority==='Critical')
+    .reduce((a,r)=>a+r.volume,0);
+  document.getElementById('metric-cards').innerHTML=`
     <div class="metric-card"><div class="metric-label">Total keywords</div><div class="metric-value">${rows.length}</div></div>
+    <div class="metric-card"><div class="metric-label">Lost</div><div class="metric-value" style="color:var(--lost-text)">${c.Lost}</div></div>
     <div class="metric-card"><div class="metric-label">Critical</div><div class="metric-value" style="color:var(--critical-text)">${c.Critical}</div></div>
     <div class="metric-card"><div class="metric-label">High</div><div class="metric-value" style="color:var(--high-text)">${c.High}</div></div>
-    <div class="metric-card"><div class="metric-label">Lost</div><div class="metric-value" style="color:var(--lost-text)">${c.Lost}</div></div>
-    <div class="metric-card"><div class="metric-label">New</div><div class="metric-value" style="color:var(--new-text)">${c.New}</div></div>
-    <div class="metric-card"><div class="metric-label">Avg drop</div><div class="metric-value">${avg}</div></div>
+    <div class="metric-card"><div class="metric-label">Volume at risk</div><div class="metric-value" style="color:var(--critical-text)">${urgentVol.toLocaleString()}</div></div>
+    <div class="metric-card"><div class="metric-label">New keywords</div><div class="metric-value" style="color:var(--new-text)">${c.New}</div></div>
     <div class="metric-card"><div class="metric-label">Stable / improved</div><div class="metric-value" style="color:var(--low-text)">${c.Stable+c.Low}</div></div>
   `;
 }
 
+/* ── Render table ── */
 function renderTable() {
-  const q = (document.getElementById('search-input').value||'').toLowerCase();
-  let rows = allRows.filter(r =>
-    (activeFilter === 'all' || r.priority === activeFilter) &&
-    (!q || r.keyword.toLowerCase().includes(q) || r.url.toLowerCase().includes(q))
+  const q=(document.getElementById('search-input').value||'').toLowerCase();
+  let rows=allRows.filter(r=>
+    (activeFilter==='all'||r.priority===activeFilter)&&
+    (!q||r.keyword.toLowerCase().includes(q)||r.url.toLowerCase().includes(q))
   );
-  if (sortCol !== null) {
-    rows = [...rows].sort((a,b) => {
-      let av = a[sortCol], bv = b[sortCol];
-      if (sortCol === 'priority') { av = priorityOrder(av); bv = priorityOrder(bv); }
-      if (av === null) av = sortDir===1 ? Infinity : -Infinity;
-      if (bv === null) bv = sortDir===1 ? Infinity : -Infinity;
-      if (typeof av === 'string') { av=av.toLowerCase(); bv=(bv||'').toLowerCase(); }
+
+  if (sortCol!==null) {
+    rows=[...rows].sort((a,b)=>{
+      let av=a[sortCol],bv=b[sortCol];
+      if (sortCol==='priority'){av=priorityOrder(av);bv=priorityOrder(bv);}
+      if (av===null) av=sortDir===1?Infinity:-Infinity;
+      if (bv===null) bv=sortDir===1?Infinity:-Infinity;
+      if (typeof av==='string'){av=av.toLowerCase();bv=(bv||'').toLowerCase();}
       return av<bv?-sortDir:av>bv?sortDir:0;
     });
   } else {
-    rows = [...rows].sort((a,b)=>priorityOrder(a.priority)-priorityOrder(b.priority));
+    // Default: sort by score desc, then priority, then volume desc
+    rows=[...rows].sort((a,b)=>{
+      if (b.score!==a.score) return b.score-a.score;
+      const po=priorityOrder(a.priority)-priorityOrder(b.priority);
+      if (po!==0) return po;
+      return b.volume-a.volume;
+    });
   }
-  filteredRows = rows;
+  filteredRows=rows;
 
-  const cols = [
-    {key:'priority',label:'Priority'},{key:'keyword',label:'Keyword'},
-    {key:'current',label:'Current pos'},{key:'previous',label:'Prev pos'},
-    {key:'drop',label:'Drop'},{key:'volume',label:'Search vol'},{key:'url',label:'URL'}
+  const cols=[
+    {key:'score',   label:'Score'},
+    {key:'priority',label:'Priority'},
+    {key:'keyword', label:'Keyword'},
+    {key:'current', label:'Current pos'},
+    {key:'previous',label:'Prev pos'},
+    {key:'drop',    label:'Drop'},
+    {key:'volume',  label:'Search vol'},
+    {key:'url',     label:'URL'},
   ];
-  document.getElementById('tbl-head').innerHTML = `<tr>${cols.map(c=>
+
+  document.getElementById('tbl-head').innerHTML=`<tr>${cols.map(c=>
     `<th onclick="sortBy('${c.key}')">${c.label}<span class="sort-icon${sortCol===c.key?' on':''}">${sortCol===c.key?(sortDir===1?' ▲':' ▼'):' ↕'}</span></th>`
   ).join('')}</tr>`;
 
-  const tbody = document.getElementById('tbl-body');
-  if (!rows.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No keywords match your filters</td></tr>`;
-    document.getElementById('row-count').textContent = '';
+  const tbody=document.getElementById('tbl-body');
+  if (!rows.length){
+    tbody.innerHTML=`<tr class="empty-row"><td colspan="8">No keywords match your filters</td></tr>`;
+    document.getElementById('row-count').textContent='';
     return;
   }
 
-  tbody.innerHTML = rows.map(r => {
-    let dropTxt, dropClass;
-    const cs = (r.changeStr||'').toLowerCase();
-    if (cs==='lost')       { dropTxt='Lost';              dropClass='drop-neg'; }
-    else if (cs==='new')   { dropTxt='New';               dropClass='drop-pos'; }
-    else if (r.drop===null){ dropTxt='—';                 dropClass='drop-zero';}
-    else if (r.drop>0)     { dropTxt=`↓ ${r.drop}`;      dropClass='drop-neg'; }
-    else if (r.drop<0)     { dropTxt=`↑ ${Math.abs(r.drop)}`; dropClass='drop-pos'; }
-    else                   { dropTxt='—';                 dropClass='drop-zero';}
+  const localMax = rows.reduce((m,r)=>Math.max(m,r.score),0)||1;
 
-    const shortUrl = r.url
-      ? r.url.replace(/^https?:\/\/(www\.)?/,'').substring(0,50)+(r.url.length>57?'…':'')
+  tbody.innerHTML=rows.map(r=>{
+    let dropTxt,dropClass;
+    const cs=(r.changeStr||'').toLowerCase();
+    if (cs==='lost')      {dropTxt='Lost';              dropClass='drop-neg';}
+    else if (cs==='new')  {dropTxt='New';               dropClass='drop-pos';}
+    else if (r.drop===null){dropTxt='—';                dropClass='drop-zero';}
+    else if (r.drop>0)    {dropTxt=`↓ ${r.drop}`;      dropClass='drop-neg';}
+    else if (r.drop<0)    {dropTxt=`↑ ${Math.abs(r.drop)}`;dropClass='drop-pos';}
+    else                  {dropTxt='—';                 dropClass='drop-zero';}
+
+    const barPct=Math.round((r.score/localMax)*100);
+    const barColor = {Lost:'#7f1d1d',Critical:'#b91c1c',High:'#c2410c',Medium:'#1d4ed8',Low:'#15803d',Stable:'#9c9a93',New:'#7e22ce'}[r.priority]||'#9c9a93';
+
+    const shortUrl=r.url
+      ? r.url.replace(/^https?:\/\/(www\.)?/,'').substring(0,45)+(r.url.length>52?'…':'')
       : '—';
 
     return `<tr>
+      <td>
+        <div class="score-wrap">
+          <span class="score-num" style="color:${barColor}">${r.score>0?r.score.toFixed(1):'—'}</span>
+          <div class="score-bar-bg"><div class="score-bar-fill" style="width:${barPct}%;background:${barColor}"></div></div>
+        </div>
+      </td>
       <td><span class="pill pill-${r.priority}">${r.priority}</span></td>
-      <td style="max-width:220px;word-break:break-word">${r.keyword||'—'}</td>
+      <td style="max-width:200px;word-break:break-word">${r.keyword||'—'}</td>
       <td class="mono" style="text-align:center">${r.current||'—'}</td>
       <td class="mono" style="text-align:center;color:var(--text2)">${r.previous||'—'}</td>
       <td class="mono ${dropClass}" style="text-align:center">${dropTxt}</td>
@@ -415,25 +456,24 @@ function renderTable() {
     </tr>`;
   }).join('');
 
-  document.getElementById('row-count').textContent =
-    `Showing ${rows.length} of ${allRows.length} keywords`;
+  document.getElementById('row-count').textContent=`Showing ${rows.length} of ${allRows.length} keywords`;
 }
 
-function sortBy(col) {
-  if (sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=1; }
+function sortBy(col){
+  if (sortCol===col) sortDir*=-1; else {sortCol=col;sortDir=1;}
   renderTable();
 }
 
-function setFilter(btn) {
+function setFilter(btn){
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  activeFilter = btn.dataset.filter;
+  activeFilter=btn.dataset.filter;
   renderTable();
 }
 
-function processRows(rows, label) {
-  if (!rows||!rows.length) { alert('Could not parse CSV. Please check the file format.'); return; }
-  allRows = rows; activeFilter='all'; sortCol=null; sortDir=1;
+function processRows(rows,label){
+  if (!rows||!rows.length){alert('Could not parse CSV. Please check the file format.');return;}
+  allRows=rows; activeFilter='all'; sortCol=null; sortDir=1;
   document.getElementById('upload-section').style.display='none';
   document.getElementById('dashboard').style.display='block';
   document.getElementById('file-label').textContent=label;
@@ -442,24 +482,24 @@ function processRows(rows, label) {
   renderMetrics(rows); renderTable();
 }
 
-function resetTool() {
+function resetTool(){
   document.getElementById('upload-section').style.display='block';
   document.getElementById('dashboard').style.display='none';
   document.getElementById('csv-file').value='';
-  allRows=[]; filteredRows=[];
+  allRows=[];filteredRows=[];
 }
 
-function loadSample() {
-  processRows(parseCSV(SAMPLE), 'sample-data.csv (14 keywords)');
+function loadSample(){
+  processRows(parseCSV(SAMPLE),'sample-data.csv (16 keywords)');
 }
 
-function exportCSV() {
+function exportCSV(){
   if (!filteredRows.length) return;
-  const hdrs=['Priority','Keyword','Current position','Previous position','Drop','Search volume','URL'];
+  const hdrs=['Score','Priority','Keyword','Current position','Previous position','Drop','Search volume','URL'];
   const lines=[hdrs.join(',')];
   filteredRows.forEach(r=>{
     const d=r.changeStr||(r.drop!==null?r.drop:'');
-    lines.push([r.priority,`"${r.keyword}"`,r.current,r.previous,d,r.volume,`"${r.url}"`].join(','));
+    lines.push([r.score,r.priority,`"${r.keyword}"`,r.current,r.previous,d,r.volume,`"${r.url}"`].join(','));
   });
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));
@@ -467,25 +507,25 @@ function exportCSV() {
   a.click();
 }
 
-function handleFile(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    const text = decodeBuffer(e.target.result);
-    const rows = parseCSV(text);
-    processRows(rows, `${file.name} (${rows?rows.length:0} keywords)`);
+function handleFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=decodeBuffer(e.target.result);
+    const rows=parseCSV(text);
+    processRows(rows,`${file.name} (${rows?rows.length:0} keywords)`);
   };
   reader.readAsArrayBuffer(file);
 }
 
-document.getElementById('csv-file').addEventListener('change', function() {
+document.getElementById('csv-file').addEventListener('change',function(){
   if (this.files[0]) handleFile(this.files[0]);
 });
 
-const dz = document.getElementById('drop-zone');
-dz.addEventListener('dragover', e=>{e.preventDefault();dz.classList.add('dragover');});
-dz.addEventListener('dragleave', ()=>dz.classList.remove('dragover'));
-dz.addEventListener('drop', e=>{
-  e.preventDefault(); dz.classList.remove('dragover');
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault();dz.classList.remove('dragover');
   if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
 });
 </script>
